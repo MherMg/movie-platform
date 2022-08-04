@@ -15,6 +15,7 @@ import java.time.ZoneId;
 
 import static am.platform.movie.api.rest.response.ResponseMessage.*;
 import static am.platform.movie.common.model.EmailVerify.State.PROCESSED;
+import static am.platform.movie.common.model.EmailVerify.State.SENT;
 
 /**
  * @author mher13.02.94@gmail.com
@@ -32,26 +33,30 @@ public class MailService {
 
     private final UserService userService;
     private final EmailVerifyRepository emailVerifyRepository;
+    private final MailSenderService mailSenderService;
 
 
     @Autowired
     public MailService(
             UserService userService,
-            EmailVerifyRepository emailVerifyRepository) {
+            EmailVerifyRepository emailVerifyRepository,
+            MailSenderService mailSenderService
+    ) {
         this.userService = userService;
         this.emailVerifyRepository = emailVerifyRepository;
+        this.mailSenderService = mailSenderService;
     }
 
     public void createEmailVerify(String email) {
+        String code = RandomStringUtils.randomNumeric(EMAIL_CODE_LENGTH);
         EmailVerify emailVerify = new EmailVerify();
         emailVerify.setEmail(email);
-        emailVerify.setCode(RandomStringUtils.randomNumeric(EMAIL_CODE_LENGTH));
+        emailVerify.setCode(code);
         emailVerifyRepository.save(emailVerify);
-        //send email
-
+        mailSenderService.sendVerificationMail(email, code);
     }
 
-    public ResponseMessage checkSmsCode(String code, String email) {
+    public ResponseMessage checkEmailCode(String code, String email) {
         EmailVerify emailVerify = getEmailVerify(email);
         if (emailVerify == null) {
             return CONFIRMATION_CODE_EVENT_IS_NULL;
@@ -63,7 +68,7 @@ public class MailService {
         if (emailVerify.getState() == PROCESSED) {
             return CODE_EXPIRED;
         }
-        if (code.equals(emailVerify.getCode())) {
+        if (!code.equals(emailVerify.getCode())) {
             codeProcessed(emailVerify);
             return CODE_DOES_NOT_MATCH;
         }
@@ -72,13 +77,13 @@ public class MailService {
     }
 
     public void sendEmailCode(String email) {
-        EmailVerify emailVerify = emailVerifyRepository.findByEmail(userService.getCurrentUser().getEmail());
-        emailVerify.setState(PROCESSED);
-        emailVerify.setCode(RandomStringUtils.randomNumeric(EMAIL_CODE_LENGTH));
+        String code = RandomStringUtils.randomNumeric(EMAIL_CODE_LENGTH);
+        EmailVerify emailVerify = emailVerifyRepository.findByEmail(email);
+        emailVerify.setState(SENT);
+        emailVerify.setCode(code);
         emailVerify.setUpdatedAt(LocalDateTime.now());
         emailVerifyRepository.save(emailVerify);
-
-        //send email
+        mailSenderService.sendVerificationMail(email, code);
     }
 
     public EmailVerify getEmailVerify(String email) {

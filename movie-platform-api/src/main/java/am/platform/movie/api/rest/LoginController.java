@@ -165,21 +165,18 @@ public class LoginController {
         if (!passwordEncoder.matches(request.password, user.getPassword())) {
             return ResponseEntity.badRequest().body(ResponseInfo.createResponse(ResponseMessage.PASSWORD_IS_INVALID));
         }
-
-        switch (mailService.checkSmsCode(code, request.email)) {
-            case CONFIRMATION_CODE_EVENT_IS_NULL:
-                return ResponseEntity.status(404).body(ResponseInfo.createResponse(CONFIRMATION_CODE_EVENT_IS_NULL));
-            case CODE_DOES_NOT_MATCH:
-                return ResponseEntity.badRequest().body(ResponseInfo.createResponse(CODE_DOES_NOT_MATCH));
-            case CODE_EXPIRED:
-                return ResponseEntity.status(409).body(ResponseInfo.createResponse(CODE_EXPIRED));
-
+        ResponseMessage checkEmailCode = mailService.checkEmailCode(code, request.email);
+        if (checkEmailCode == null) {
+            userService.userVerified(user);
+            log.debug("user account verified: [userId:{};email:{}]", user.getId(), user.getEmail());
+            return ResponseEntity.ok(generateResponse(user));
         }
-        userService.userVerified(user);
-
-        log.debug("user account verified: [userId:{};email:{}]", user.getId(), user.getEmail());
-
-        return ResponseEntity.ok(generateResponse(user));
+        return switch (checkEmailCode) {
+            case CONFIRMATION_CODE_EVENT_IS_NULL -> ResponseEntity.status(404).body(ResponseInfo.createResponse(CONFIRMATION_CODE_EVENT_IS_NULL));
+            case CODE_DOES_NOT_MATCH -> ResponseEntity.badRequest().body(ResponseInfo.createResponse(CODE_DOES_NOT_MATCH));
+            case CODE_EXPIRED -> ResponseEntity.status(409).body(ResponseInfo.createResponse(CODE_EXPIRED));
+            default -> ResponseEntity.badRequest().build();
+        };
     }
 
     @ApiResponses({

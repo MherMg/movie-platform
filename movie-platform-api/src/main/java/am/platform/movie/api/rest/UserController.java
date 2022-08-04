@@ -168,17 +168,18 @@ public class UserController {
             return ResponseEntity.badRequest().body(ResponseInfo.createResponse(ResponseMessage.EMAIL_IS_NOT_VALID));
         }
 
-        switch (mailService.checkSmsCode(code, request.newEmail)) {
-            case CONFIRMATION_CODE_EVENT_IS_NULL:
-                return ResponseEntity.badRequest().body(ResponseInfo.createResponse(CONFIRMATION_CODE_EVENT_IS_NULL));
-            case CODE_DOES_NOT_MATCH:
-                return ResponseEntity.badRequest().body(ResponseInfo.createResponse(CODE_DOES_NOT_MATCH));
-            case CODE_EXPIRED:
-                return ResponseEntity.status(409).body(ResponseInfo.createResponse(CODE_EXPIRED));
-
+        ResponseMessage checkEmailCode = mailService.checkEmailCode(code, request.newEmail);
+        if (checkEmailCode == null) {
+            User user = userService.updateEmail(userService.getCurrentUser(), request.newEmail);
+            return ResponseEntity.ok(generateResponse(user));
         }
-        User user = userService.updateEmail(userService.getCurrentUser(), request.newEmail);
-        return ResponseEntity.ok(generateResponse(user));
+        return switch (checkEmailCode) {
+            case CONFIRMATION_CODE_EVENT_IS_NULL -> ResponseEntity.status(404).body(ResponseInfo.createResponse(CONFIRMATION_CODE_EVENT_IS_NULL));
+            case CODE_DOES_NOT_MATCH -> ResponseEntity.badRequest().body(ResponseInfo.createResponse(CODE_DOES_NOT_MATCH));
+            case CODE_EXPIRED -> ResponseEntity.status(409).body(ResponseInfo.createResponse(CODE_EXPIRED));
+            default -> ResponseEntity.badRequest().build();
+        };
+
     }
 
     @ApiResponses({
