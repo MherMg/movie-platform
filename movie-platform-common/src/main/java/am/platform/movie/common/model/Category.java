@@ -4,6 +4,7 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDateTime;
@@ -12,28 +13,16 @@ import java.time.LocalDateTime;
  * @author mher13.02.94@gmail.com
  */
 
-@Document("users")
+@Document("category")
 @AllArgsConstructor
 @NoArgsConstructor
 @Data
-public class User {
+public class Category {
 
     @Id
     private String id;
-    private String email;
     private String name;
     private LocalDateTime createdAt;
-    private String password;
-    private UserState state;
-    private LocalDateTime stateAt;
-    private Role role = Role.USER;
-
-    public enum UserState {
-        ACTIVE, DELETED
-    }
-
-    public enum Role {
-        USER, ADMIN
-    }
-
+    @DBRef
+    private Category parentCategory;
 }
