@@ -111,7 +111,6 @@ public class CategoryController {
             @ApiResponse(code = 200, message = "", response = CategoryDto.class)
     })
     @ApiOperation(value = "API for get category by id", authorizations = {@Authorization(value = "Bearer")})
-    @PreAuthorize("hasAuthority('ADMIN')")
     @GetMapping("/category/{categoryId}")
     public HttpEntity<?> getCategory(@PathVariable String categoryId) {
 
