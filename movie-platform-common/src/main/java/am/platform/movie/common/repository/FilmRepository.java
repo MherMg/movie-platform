@@ -1,8 +1,11 @@
 package am.platform.movie.common.repository;
 
+import am.platform.movie.common.model.Category;
 import am.platform.movie.common.model.Film;
 import am.platform.movie.common.repository.custom.FilmRepositoryCustom;
 import org.springframework.data.repository.PagingAndSortingRepository;
+
+import java.util.List;
 
 
 /**
@@ -11,4 +14,5 @@ import org.springframework.data.repository.PagingAndSortingRepository;
 
 public interface FilmRepository extends PagingAndSortingRepository<Film, String>, FilmRepositoryCustom {
 
+    List<Film> findAllByCategory(Category category);
 }
