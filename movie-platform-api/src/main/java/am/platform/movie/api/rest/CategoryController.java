@@ -15,6 +15,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.util.ArrayList;
 import java.util.List;
@@ -62,7 +63,7 @@ public class CategoryController {
     @ApiOperation(value = "API for create category,if send parent id then create subcategory under parent category else create parent category. Has authority - ADMIN ", authorizations = {@Authorization(value = "Bearer")})
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping("/category")
-    public HttpEntity<?> createCategory(@RequestBody CategoryRequest request) {
+    public HttpEntity<?> createCategory(@Valid @RequestBody CategoryRequest request) {
 
         if (request.parentCategoryId != null) {
             Optional<Category> parentCategory = categoryService.findCategoryById(request.parentCategoryId);
@@ -83,9 +84,9 @@ public class CategoryController {
     @ApiOperation(value = "API for update category.Has authority - ADMIN", authorizations = {@Authorization(value = "Bearer")})
     @PreAuthorize("hasAuthority('ADMIN')")
     @PutMapping("/category/{categoryId}")
-    public HttpEntity<?> updateCategory(
-            @RequestBody CategoryRequest request,
-            @PathVariable String categoryId
+    public HttpEntity<?> updateCategory(@Valid
+                                        @RequestBody CategoryRequest request,
+                                        @PathVariable String categoryId
     ) {
 
         Optional<Category> categoryOptional = categoryService.findCategoryById(categoryId);

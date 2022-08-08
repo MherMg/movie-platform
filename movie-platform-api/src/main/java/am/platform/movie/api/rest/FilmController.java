@@ -20,6 +20,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.access.prepost.PreAuthorize;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 import java.time.LocalDate;
 import java.util.List;
@@ -53,10 +54,8 @@ public class FilmController {
         public String name;
         @NotBlank
         public String description;
-        @NotBlank
         @JsonFormat(pattern = "yyyy-MM-dd")
         public LocalDate issueDate;
-        @NotBlank
         public int duration;
         @NotBlank
         public String categoryId;
@@ -78,7 +77,7 @@ public class FilmController {
     @ApiOperation(value = "API for add film. Has authority - ADMIN ", authorizations = {@Authorization(value = "Bearer")})
     @PreAuthorize("hasAuthority('ADMIN')")
     @PostMapping()
-    public HttpEntity<?> createFilm(@RequestBody FilmRequest request) {
+    public HttpEntity<?> createFilm(@Valid @RequestBody FilmRequest request) {
 
         Optional<Category> categoryOptional = categoryService.findCategoryById(request.categoryId);
         if (categoryOptional.isEmpty()) {

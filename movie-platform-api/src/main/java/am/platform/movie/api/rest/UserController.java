@@ -21,6 +21,7 @@ import org.springframework.http.ResponseEntity;
 import org.springframework.security.crypto.password.PasswordEncoder;
 import org.springframework.web.bind.annotation.*;
 
+import javax.validation.Valid;
 import javax.validation.constraints.NotBlank;
 
 import static am.platform.movie.api.rest.response.ResponseMessage.*;
@@ -114,7 +115,7 @@ public class UserController {
             @ApiResponse(code = 200, message = "ACCOUNT_DELETED", response = ResponseInfo.class)})
     @ApiOperation(value = "", authorizations = {@Authorization(value = "Bearer")})
     @DeleteMapping("/me")
-    public HttpEntity<ResponseInfo> deleteMe(@RequestBody DeleteRequest request) {
+    public HttpEntity<ResponseInfo> deleteMe(@Valid @RequestBody DeleteRequest request) {
 
         if (!Validator.isValidPassword(request.password)) {
             return ResponseEntity.badRequest().body(ResponseInfo.createResponse(ResponseMessage.PASSWORD_IS_INVALID));
@@ -138,7 +139,7 @@ public class UserController {
     })
     @ApiOperation(value = "API to get code to change email", authorizations = {@Authorization(value = "Bearer")})
     @PutMapping("/change-email")
-    public HttpEntity<?> changeEmail(@RequestBody ChangeEmailRequest request) {
+    public HttpEntity<?> changeEmail(@Valid @RequestBody ChangeEmailRequest request) {
 
         if (!Validator.isValidEmail(request.newEmail)) {
             return ResponseEntity.badRequest().body(ResponseInfo.createResponse(ResponseMessage.EMAIL_IS_NOT_VALID));
@@ -159,9 +160,9 @@ public class UserController {
     })
     @ApiOperation(value = "API for confirm email code and change email", authorizations = {@Authorization(value = "Bearer")})
     @PostMapping("/verify-change-email")
-    public HttpEntity<?> verifyEmail(
-            @RequestParam(value = "code") String code,
-            @RequestBody ChangeEmailRequest request
+    public HttpEntity<?> verifyEmail(@Valid
+                                     @RequestParam(value = "code") String code,
+                                     @RequestBody ChangeEmailRequest request
     ) {
 
         if (!Validator.isValidEmail(request.newEmail)) {
@@ -188,7 +189,7 @@ public class UserController {
     })
     @ApiOperation(value = "API for change password", authorizations = {@Authorization(value = "Bearer")})
     @PutMapping("/change-password")
-    public HttpEntity<?> changePassword(@RequestBody ChangePasswordRequest request) {
+    public HttpEntity<?> changePassword(@Valid @RequestBody ChangePasswordRequest request) {
 
         if (!Validator.isValidPassword(request.newPassword)) {
             return ResponseEntity.badRequest().body(ResponseInfo.createResponse(PASSWORD_IS_INVALID));

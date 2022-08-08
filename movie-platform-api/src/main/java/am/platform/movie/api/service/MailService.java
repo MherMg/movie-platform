@@ -31,18 +31,15 @@ public class MailService {
     private static final Integer EMAIL_CODE_LENGTH = 6;
 
 
-    private final UserService userService;
     private final EmailVerifyRepository emailVerifyRepository;
     private final MailSenderService mailSenderService;
 
 
     @Autowired
     public MailService(
-            UserService userService,
             EmailVerifyRepository emailVerifyRepository,
             MailSenderService mailSenderService
     ) {
-        this.userService = userService;
         this.emailVerifyRepository = emailVerifyRepository;
         this.mailSenderService = mailSenderService;
     }
