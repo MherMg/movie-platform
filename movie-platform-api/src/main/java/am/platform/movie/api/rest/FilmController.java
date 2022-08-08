@@ -141,4 +141,19 @@ public class FilmController {
         );
     }
 
+
+    @ApiResponses({
+            @ApiResponse(code = 404, message = "CATEGORY_NOT_FOUND", response = ResponseInfo.class),
+            @ApiResponse(code = 200, message = "", response = FilmDto.class)
+    })
+    @ApiOperation(value = "API for search film by name", authorizations = {@Authorization(value = "Bearer")})
+    @GetMapping("/search/{name}")
+    public HttpEntity<?> searchFilmByName(@PathVariable String name) {
+
+        List<Film> films = filmService.searchByFuzzyName(name);
+        if (films.isEmpty()) {
+            return ResponseEntity.status(404).body(ResponseInfo.createResponse(FILM_NOT_FOUND));
+        }
+        return ResponseEntity.status(200).body(films.stream().map(FilmDto::new).collect(Collectors.toList()));
+    }
 }

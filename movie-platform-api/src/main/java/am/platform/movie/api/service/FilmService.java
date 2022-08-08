@@ -54,6 +54,10 @@ public class FilmService {
         return filmRepository.filter(categoryId, start, end, page, size);
     }
 
+    public List<Film> searchByFuzzyName(String name) {
+        return filmRepository.searchByName(name);
+    }
+
     public void watchFilm(Film film) {
         UserFilmHistory userFilmHistory = new UserFilmHistory();
         userFilmHistory.setFilm(film);

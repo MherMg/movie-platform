@@ -4,12 +4,12 @@ import lombok.AllArgsConstructor;
 import lombok.Data;
 import lombok.NoArgsConstructor;
 import org.springframework.data.annotation.Id;
+import org.springframework.data.mongodb.core.index.Indexed;
 import org.springframework.data.mongodb.core.mapping.DBRef;
 import org.springframework.data.mongodb.core.mapping.Document;
 
 import java.time.LocalDate;
 import java.time.LocalDateTime;
-import java.time.Year;
 
 /**
  * @author mher13.02.94@gmail.com
@@ -23,6 +23,7 @@ public class Film {
 
     @Id
     private String id;
+    @Indexed
     private String name;
     private String description;
     //minute
